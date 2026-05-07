@@ -1,0 +1,170 @@
+---
+title: "Sim 1 mgcv"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(mgcv)
+
+options(warn=-1)
+```
+
+## Simulation 1
+
+```{r}
+n_sim <- 500
+fam_names <- c("Gaussian","Binom","Gamma", "Poisson")
+mod_fams <- list(gaussian(),binomial(),Gamma(link='log'),poisson(link="log"))
+z <- qnorm(0.975)
+
+for (should_correlate in c(T,F)) {
+  
+  for (fami in 1:length(fam_names)) {
+    fam_name <- fam_names[fami]
+    mod_fam <- mod_fams[[fami]]
+    
+    res <- matrix(nrow=n_sim,ncol = 3)
+    
+    pb = txtProgressBar(min = 0, max = n_sim, initial = 0)
+    
+    for (sim_i in 1:n_sim) {
+      # Load data
+      sim_dat <- read.csv(paste0('./results/data/sim1_exp/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'.csv'))
+  
+      # Fit model via Wood (2011)
+      control.g <- gam.control(maxit=500)
+      g <- gam(y ~ s(x0,bs='ps',m=c(2,2)) +
+                   s(x1,bs='ps',m=c(2,2)) +
+                   s(x2,bs='ps',m=c(2,2)) +
+                   s(x3,bs='ps',m=c(2,2)),data=sim_dat,family = mod_fam,method='REML',
+                   control = control.g)
+      
+      # Now compute linear predictor - true linear predictor
+      pred_diff_g <- g$linear.predictors - sim_dat$eta
+      
+      # Collect mse
+      eta_mse_g <- (pred_diff_g %*% pred_diff_g)/length(pred_diff_g)
+
+      # And coverage
+      p <- predict.gam(g,sim_dat,type='link',se.fit=T)
+
+      ci_u <- p$fit + z * p$se
+      ci_l <- p$fit - z * p$se
+
+      IN_CI <- (sim_dat$eta >= ci_l) & (sim_dat$eta <= ci_u)
+      
+      res[sim_i,1] <- eta_mse_g
+      res[sim_i,2] <- ifelse(g$outer.info$conv == "full convergence",1,0)
+      res[sim_i,3] <- sum(IN_CI)/length(IN_CI)
+
+      
+      setTxtProgressBar(pb,sim_i)
+    }
+    close(pb)
+    cat("MSE:",sum(res[,1])/n_sim,"\n")
+    cat("Failures:",n_sim - sum(res[,2]),"\n")
+    cat("Coverage:",sum(res[,3])/n_sim,"\n")
+    
+    # Store results
+    write.table(res,file=paste0('./results/sim/sim1_exp/mgcv_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'.csv'),
+                sep=',',row.names = F,col.names = c("mse","failures","coverage"))
+  }
+}
+```
+
+```{r}
+fam_names <- c("MGauss", "Multinomial", "ScaledT", "PropHaz")
+
+for (should_correlate in c(T,F)) {
+  
+  for (fami in 1:length(fam_names)) {
+    fam_name <- fam_names[fami]
+    
+    res <- matrix(nrow=n_sim,ncol = 3)
+    
+    pb = txtProgressBar(min = 0, max = n_sim, initial = 0)
+    
+    for (sim_i in 1:n_sim) {
+      # Load data
+      sim_dat <- read.csv(paste0('./results/data/sim1_gen/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'.csv'))
+  
+      # Fit models via Wood et al. (2016)
+      control.g <- gam.control(maxit=500)
+      if (fam_name == "MGauss") {
+        g <- gam(list(y0 ~ s(x0,bs='ps',m=c(2,2)),
+                      y1 ~ s(x1,bs='ps',m=c(2,2))+s(x2,bs='ps',m=c(2,2)),
+                      y2 ~ s(x3,bs='ps',m=c(2,2))),
+                     data=sim_dat,family = mvn(3),
+                     method='REML',control = control.g)
+
+      } else if (fam_name == "Multinomial") {
+        g <- gam(list(y ~ s(x0,bs='ps',m=c(2,2)),
+                        ~ s(x1,bs='ps',m=c(2,2)),
+                        ~ s(x2,bs='ps',m=c(2,2)),
+                        ~ s(x3,bs='ps',m=c(2,2))),
+                     data=sim_dat,family = multinom(4),
+                     method='REML',control = control.g)
+         
+      } else if (fam_name == "ScaledT") {
+        g <- gam(y ~ s(x0,bs='ps',m=c(2,2)) +
+                     s(x1,bs='ps',m=c(2,2)) +
+                     s(x2,bs='ps',m=c(2,2)) +
+                     s(x3,bs='ps',m=c(2,2)),
+                     data=sim_dat,family = scat(),
+                     method='REML',control = control.g)
+         
+      } else { # Prophaz
+        g <- gam(y ~ s(x0,bs='ps',m=c(2,2)) +
+                     s(x1,bs='ps',m=c(2,2)) +
+                     s(x2,bs='ps',m=c(2,2)) +
+                     s(x3,bs='ps',m=c(2,2)),
+                     data=sim_dat,family = cox.ph(),
+                     weights=delta,method='REML',
+                     control = control.g)
+      }
+      
+      # Collect mse and coverage
+      p <- predict.gam(g,sim_dat,type='link',se.fit=T)
+    
+      if (is.null(ncol(g$linear.predictors))){
+        ci_u <- p$fit + z * p$se
+        ci_l <- p$fit - z * p$se
+        pred_diff_g <- g$linear.predictors - sim_dat$eta
+        IN_CI <- (sim_dat$eta >= ci_l) & (sim_dat$eta  <= ci_u)
+      } else {
+        pred_diff_g <- c()
+        IN_CI <- c()
+        for (pred in 1:ncol(g$linear.predictors)) {
+          ci_u <- p$fit[,pred] + z * p$se[,pred]
+          ci_l <- p$fit[,pred] - z * p$se[,pred]
+          pred_diff_g <- c(pred_diff_g,
+                           unlist(g$linear.predictors[,pred] - sim_dat[paste0("eta",as.character(pred-1))]))
+          IN_CI <- c(IN_CI,(sim_dat[paste0("eta",as.character(pred-1))] >= ci_l) &
+                           (sim_dat[paste0("eta",as.character(pred-1))] <= ci_u))
+        }
+      }
+      
+      eta_mse_g <- (pred_diff_g %*% pred_diff_g)/length(pred_diff_g)
+      
+      res[sim_i,1] <- eta_mse_g
+      res[sim_i,2] <- ifelse(g$outer.info$conv == "full convergence",1,0)
+      res[sim_i,3] <- sum(IN_CI)/length(IN_CI)
+      
+      setTxtProgressBar(pb,sim_i)
+      
+    }
+    close(pb)
+    cat("MSE:",sum(res[,1])/n_sim,"\n")
+    cat("Failures:",n_sim - sum(res[,2]),"\n")
+    cat("Coverage:",sum(res[,3])/n_sim,"\n")
+    
+    # Store results
+      write.table(res,file=paste0('./results/sim/sim1_gen/mgcv_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'.csv'),
+                  sep=',',row.names = F,col.names = c("mse","failures","coverage"))
+  }
+}
+
+```
