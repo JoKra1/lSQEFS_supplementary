@@ -17,8 +17,8 @@ options(warn=-1)
 ```{r}
 n_sim <- 500
 n_c <- 10
-fam_names <- c("Gaussian","Binom","Gamma", "Poisson")
-mod_fams <- list(gaussian(),binomial(),Gamma(link='log'),poisson(link="log"))
+fam_names <- c("Gaussian","Gamma","Binom", "Poisson")
+mod_fams <- list(gaussian(),Gamma(link='log'),binomial(),poisson(link="log"))
 
 for (should_correlate in c(F)) {
   
