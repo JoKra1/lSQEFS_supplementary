@@ -66,7 +66,7 @@ for (should_correlate in c(F)) {
     
     # Store results
     write.table(res,file=paste0('./results/sim/sim5_exp/mgcv_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'.csv'),
-                sep=',',row.names = F,col.names = c("acc"))
+                sep=',',row.names = F,col.names = c("aic"))
   }
 }
 ```
@@ -168,7 +168,7 @@ for (should_correlate in c(F)) {
 
     # Store results
     write.table(res,file=paste0('./results/sim/sim5_gen/mgcv_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'.csv'),
-                sep=',',row.names = F,col.names = c("mse","failures","coverage"))
+                sep=',',row.names = F,col.names = c("aic"))
 
   }
 }
