@@ -214,3 +214,5 @@ __marimo__/
 *.csv
 *.pickle
 .Rproj.user
+.positai
+*.pdf

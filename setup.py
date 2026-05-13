@@ -10,6 +10,7 @@ if __name__ == "__main__":
     try:
         os.makedirs("./results/sim")
         os.makedirs("./results/data")
+        os.makedirs("./results/plots")
     except:
         print("Result sub-directory already exist.")
 
