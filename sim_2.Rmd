@@ -92,6 +92,8 @@ for (should_correlate in c(T,F)) {
   
       # Fit models via Wood et al. (2016)
       control.g <- gam.control(maxit=500)
+      tryCatch(
+      {  
       if (fam_name == "MGauss") {
         g <- gam(list(y0 ~ s(x0,bs='ps',m=c(2,2)),
                       y1 ~ te(x1,x2,bs='ps',m=c(2,2)),
@@ -149,6 +151,16 @@ for (should_correlate in c(T,F)) {
       res[sim_i,1] <- eta_mse_g
       res[sim_i,2] <- ifelse(g$outer.info$conv == "full convergence",1,0)
       res[sim_i,3] <- sum(IN_CI)/length(IN_CI)
+      
+      },
+      error = function(msg){
+        print(msg)
+        res[sim_i,1] <- NaN
+        res[sim_i,2] <- 0
+        res[sim_i,3] <-NaN
+        
+      }
+      )
       
       setTxtProgressBar(pb,sim_i)
       
