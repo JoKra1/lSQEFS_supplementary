@@ -26,7 +26,7 @@ for (should_correlate in c(F)) {
     fam_name <- fam_names[fami]
     mod_fam <- mod_fams[[fami]]
     
-    res <- matrix(nrow=n_c,ncol = 1)
+    res <- matrix(data=0,nrow=n_c,ncol = 1)
 
     for (ci in 1:n_c) {
     
@@ -76,7 +76,7 @@ for (should_correlate in c(F)) {
   for (fami in 1:length(fam_names)) {
     fam_name <- fam_names[fami]
     
-    res <- matrix(nrow=n_c,ncol = 1)
+    res <- matrix(data=0,nrow=n_c,ncol = 1)
 
     for (ci in 1:n_c) {
     
