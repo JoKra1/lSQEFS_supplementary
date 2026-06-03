@@ -17,61 +17,6 @@ options(warn=-1)
 ```{r}
 n_sim <- 500
 n_c <- 10
-fam_names <- c("Gaussian","Gamma","Binom", "Poisson")
-mod_fams <- list(gaussian(),Gamma(link='log'),binomial(),poisson(link="log"))
-
-for (should_correlate in c(F)) {
-  
-  for (fami in 1:length(fam_names)) {
-    fam_name <- fam_names[fami]
-    mod_fam <- mod_fams[[fami]]
-    
-    res <- matrix(data=0,nrow=n_c,ncol = 1)
-
-    for (ci in 1:n_c) {
-    
-      pb = txtProgressBar(min = 0, max = n_sim, initial = 0)
-      
-      for (sim_i in 1:n_sim) {
-        # Load data
-        sim_dat <- read.csv(paste0('./results/data/sim5_exp/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'_c:',ci,'.csv'))
-        sim_dat$x4 <- as.factor(sim_dat$x4)
-
-        # Fit models via Wood (2011)
-        control.g <- gam.control(maxit=500)
-        g1 <- gam(y ~ s(x0,bs='ps',m=c(2,2)) +
-                      s(x1,bs='ps',m=c(2,2)) +
-                      s(x2,bs='ps',m=c(2,2)) +
-                      s(x3,bs='ps',m=c(2,2)) +
-                      s(x4,bs='re'),data=sim_dat,family = mod_fam,method='REML',
-                      control = control.g)
-
-        g2 <- gam(y ~ s(x0,bs='ps',m=c(2,2)) +
-                      s(x1,bs='ps',m=c(2,2)) +
-                      s(x2,bs='ps',m=c(2,2)) +
-                      s(x3,bs='ps',m=c(2,2)),data=sim_dat,family = mod_fam,method='REML',
-                      control = control.g)
-        
-        # Now compute aic
-        aic_diff <- AIC(g1) - AIC(g2)
-        res[ci,1] <- res[ci,1] + ifelse(aic_diff < 0,1,0)
-        setTxtProgressBar(pb,sim_i)
-      }
-
-      # Compute proportion accepted
-      res[ci,1] <- res[ci,1] / n_sim
-      close(pb)
-
-    }
-    
-    # Store results
-    write.table(res,file=paste0('./results/sim/sim5_exp/mgcv_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'.csv'),
-                sep=',',row.names = F,col.names = c("aic"))
-  }
-}
-```
-
-```{r}
 fam_names <- c("MGauss", "Multinomial", "ScaledT", "PropHaz")
 
 for (should_correlate in c(F)) {
