@@ -32,7 +32,7 @@ for (should_correlate in c(F)) {
       
       for (sim_i in 1:n_sim) {
         # Load data
-        sim_dat <- read.csv(paste0('./results/data/sim4_gen/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'_c:',ci,'.csv'))
+        sim_dat <- read.csv(paste0('./results/data/sim4_gen/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'_c:',ci-1,'.csv'))
     
         # Fit models via Wood et al. (2016)
         control.g <- gam.control(maxit=500)

@@ -15,7 +15,7 @@ options(warn=-1)
 ## Simulation 5
 
 ```{r}
-n_sim <- 500
+n_sim <- 100
 n_c <- 10
 fam_names <- c("MGauss", "Multinomial", "ScaledT", "PropHaz")
 
@@ -32,7 +32,7 @@ for (should_correlate in c(F)) {
       
       for (sim_i in 1:n_sim) {
         # Load data
-        sim_dat <- read.csv(paste0('./results/data/sim5_gen/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'_c:',ci,'.csv'))
+        sim_dat <- read.csv(paste0('./results/data/sim5_gen/sim_size:',n_sim,'_fam:',fam_name,'_corr:',ifelse(should_correlate,'True','False'),'_set:',sim_i-1,'_c:',ci-1,'.csv'))
         sim_dat$x4 <- as.factor(sim_dat$x4)
 
         # Fit models via Wood et al. (2016)
