@@ -16,3 +16,7 @@ Rscript -e "rmarkdown::render('sim_4.Rmd')" &
 Rscript -e "rmarkdown::render('sim_5.Rmd')" &
 
 wait
+
+jupyter nbconvert sim_viz.ipynb --execute --to html
+Rscript setup.R
+jupyter nbconvert examples.ipynb --execute --to html
