@@ -34,15 +34,16 @@ default_gsmm_kwargs = {
     "global_opt_qefs": False,
     "sample_hessian": True,
     "sample_hessian_method": 0,
-    "sample_hessian_options": {},
+    "sample_hessian_options": None,
     "structured_qefs": True,
     "structured_qefs_budget": 100,
     "sqEFS_options": {
-        "dampen_HBB": 0.1,
-        "dampen_HBb": 1,
-        "pre_cond": True,
-        "PD_HBB": True,
-    },
+            "dampen_HBB": 1e-7,
+            "dampen_HBb": 1,
+            "pre_cond": True,
+            "PD_HBB": False,
+        },
+    "qEFS_memory_usage": 0.25,
 }
 
 default_gammlss_kwargs = {
