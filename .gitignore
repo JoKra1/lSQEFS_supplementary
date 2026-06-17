@@ -217,3 +217,4 @@ __marimo__/
 .positai
 *.pdf
 .DS_Store
+*.html
