@@ -39,17 +39,13 @@ if __name__ == "__main__":
         print("Sim 3 Result sub-directory already exist.")
 
     try:
-        os.makedirs("./results/data/sim4_exp")
         os.makedirs("./results/data/sim4_gen")
-        os.makedirs("./results/sim/sim4_exp")
         os.makedirs("./results/sim/sim4_gen")
     except:
         print("Sim 4 Result sub-directory already exist.")
 
     try:
-        os.makedirs("./results/data/sim5_exp")
         os.makedirs("./results/data/sim5_gen")
-        os.makedirs("./results/sim/sim5_exp")
         os.makedirs("./results/sim/sim5_gen")
     except:
         print("Sim 5 Result sub-directory already exist.")
