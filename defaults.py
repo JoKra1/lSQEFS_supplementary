@@ -44,6 +44,7 @@ default_gsmm_kwargs = {
             "PD_HBB": False,
         },
     "qEFS_memory_usage": 0.25,
+    "qEFS_final_memory_usage": None,
 }
 
 default_gammlss_kwargs = {
