@@ -218,3 +218,4 @@ __marimo__/
 *.pdf
 .DS_Store
 *.html
+test*

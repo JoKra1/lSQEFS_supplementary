@@ -38,6 +38,12 @@ default_gsmm_kwargs = {
     "structured_qefs": True,
     "structured_qefs_budget": 100,
     "sqEFS_options": {
+            "dampen_HBB": 0.1,
+            "dampen_HBb": 1,
+            "pre_cond": True,
+            "PD_HBB": False,
+        },
+    "sqEFS_options_final": {
             "dampen_HBB": 1e-7,
             "dampen_HBb": 1,
             "pre_cond": True,
