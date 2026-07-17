@@ -24,7 +24,6 @@ default_gsmm_kwargs = {
     "build_mat": None,
     "should_keep_drop": True,
     "gamma": 1,
-    "qEFSH": "SR1",
     "max_restarts": 0,
     "prefit_grad": True,
     "repara": True,
